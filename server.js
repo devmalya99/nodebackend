@@ -4,7 +4,7 @@ import cors from 'cors';
 import dotenv from 'dotenv';
 import { connectDB } from './db.js'; 
 import userRoute from './routes/user-route.js'
-
+import projectRoute from './routes/projectRoutes.js'
 import mongoose from 'mongoose';
 // import chatRoute from './routes/chat.routes.js' 
 // Load environment variables
@@ -28,6 +28,9 @@ app.use((req, res, next) => {
 
 // //user route
 app.use('/api/v1/user', userRoute);
+
+//project route
+app.use('/api/v1/projects', projectRoute);
 
 // // Health check route
 app.get('/health', (req, res) => {
