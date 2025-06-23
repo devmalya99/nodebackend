@@ -1,9 +1,10 @@
 import express from "express";
-import { getProjectsByClerkId, updateProjectProgress } from "../controllers/projectController.js";
+import {createProject, getProjectsByClerkId, updateProjectProgress } from "../controllers/projectController.js";
 
 const router = express.Router();
 
+router.post("/create", createProject);
 router.get("/:clerkId", getProjectsByClerkId);
-router.patch("/:projectId/progress", updateProjectProgress);
+router.patch("/:projectId/updateProgress", updateProjectProgress);
 
 export default router;

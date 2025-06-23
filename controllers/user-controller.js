@@ -41,24 +41,6 @@ export const registerClient = async (req, res) => {
 
     await newUser.save();
 
-    // 🆕 Automatically create a blank project
-    const newProject = new Project({
-      project_name: "",
-      clerk_id: clerkId,
-      business_plan_generated: false,
-      progress: {
-        executive_summary: "Not Started",
-        market_analysis: "Not Started",
-        competitive_analysis: "Not Started",
-        marketing_strategy: "Not Started",
-        financial_projection: "Not Started",
-        implementation_timeline: "Not Started",
-        business_plan_generation: "Not Started",
-      },
-    });
-
-    await newProject.save();
-
     res.status(201).json({
       message: 'Client user registered successfully',
       user: {

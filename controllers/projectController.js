@@ -1,6 +1,36 @@
 // controllers/projectController.js
 import { Project } from "../models/project-model.js"; // adjust path if needed
 
+
+// POST /projects
+export const createProject = async (req, res) => {
+  try {
+    const { project_name, clerk_id } = req.body;
+
+    if (!project_name || !clerk_id) {
+      return res.status(400).json({ 
+        message: "project_name and clerk_id are required" });
+    }
+
+    const newProject = new Project({
+      project_name,
+      clerk_id
+      // progress fields and timestamps will be set with default values
+    });
+
+    await newProject.save();
+
+    res.status(201).json({
+      message: "Project created successfully",
+      data: newProject,
+    });
+  } catch (error) {
+    console.error("Error creating project:", error);
+    res.status(500).json({ message: "Server error creating project" });
+  }
+};
+
+
 // GET /projects/:clerkId
 export const getProjectsByClerkId = async (req, res) => {
   try {

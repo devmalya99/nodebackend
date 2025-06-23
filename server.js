@@ -5,9 +5,9 @@ import dotenv from 'dotenv';
 import { connectDB } from './db.js'; 
 import userRoute from './routes/user-route.js'
 import projectRoute from './routes/projectRoutes.js'
+import chatRoute from './routes/chatRoutes.js'
 import mongoose from 'mongoose';
-// import chatRoute from './routes/chat.routes.js' 
-// Load environment variables
+
 dotenv.config();
 
 // Initialize express app
@@ -25,12 +25,14 @@ app.use((req, res, next) => {
 });
 
 
-
-// //user route
+//user route
 app.use('/api/v1/user', userRoute);
 
 //project route
 app.use('/api/v1/projects', projectRoute);
+
+// //chat route
+ app.use('/api/v1/chats', chatRoute);
 
 // // Health check route
 app.get('/health', (req, res) => {
