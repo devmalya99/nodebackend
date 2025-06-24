@@ -2,31 +2,38 @@ import ChatSession from "../models/ChatSessionModel.js";
 
 export const saveChatSession = async (req, res) => {
   try {
-    const { clerk_id, chat_type, messages, embedding } = req.body;
+    const { clerk_id,project_id, chat_type, all_summarised_data, message_Data } = req.body;
 
-    if (!clerk_id || !chat_type || !messages || !Array.isArray(messages)) {
+    if (!clerk_id || !project_id || !message_Data.chat_type ) {
       return res.status(400).json({ message: "Missing required fields" });
     }
 
-    const chat = await ChatSession.create({
+    const chatSession = new ChatSession({
       clerk_id,
-      chat_type,
-      embedding: embedding || [],
-      messages
+      project_id,
+      all_summarised_data: all_summarised_data || "",
+      message_Data
     });
 
-    res.status(201).json(chat);
+    const savedSession = await chatSession.save();
+    return res.status(201).json(savedSession);
   } catch (error) {
     console.error("Error saving chat:", error);
     res.status(500).json({ message: "Server error" });
   }
 };
 
+
+
 export const getChatByClerkAndType = async (req, res) => {
   try {
-    const { clerk_id, chat_type } = req.params;
+    const { clerk_id,project_id, chat_type } = req.params;
 
-    const chat = await ChatSession.findOne({ clerk_id, chat_type }).sort({ created_at: -1 });
+    const chat = await ChatSession.findOne({
+      clerk_id,
+      project_id,
+      "message_Data.chat_type": chat_type
+    }).sort({ createdAt: -1 }); // timestamps key is 'createdAt'
 
     if (!chat) {
       return res.status(404).json({ message: "Chat not found" });
@@ -38,4 +45,3 @@ export const getChatByClerkAndType = async (req, res) => {
     res.status(500).json({ message: "Server error" });
   }
 };
-
