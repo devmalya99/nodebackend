@@ -53,15 +53,21 @@ export const getProjectsByClerkId = async (req, res) => {
 export const updateProjectProgress = async (req, res) => {
   try {
     const { projectId } = req.params;
-    const progressUpdates = req.body.progress;
+    const progressFieldUpdate  = req.body;
 
-    if (!projectId || !progressUpdates) {
+    if (!projectId || !progressFieldUpdate || Object.keys(progressFieldUpdate).length === 0) {
       return res.status(400).json({ message: "Missing projectId or progress data" });
+    }
+
+    // Dynamically convert to dot notation: { "progress.business_plan_generation": "In Progress" }
+    const updateObject = {};
+    for (const key in progressFieldUpdate) {
+      updateObject[`progress.${key}`] = progressFieldUpdate[key];
     }
 
     const updatedProject = await Project.findByIdAndUpdate(
       projectId,
-      { $set: { progress: progressUpdates } },
+      { $set: updateObject },
       { new: true }
     );
 
