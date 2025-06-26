@@ -8,10 +8,13 @@ export const saveChatSession = async (req, res) => {
       return res.status(400).json({ message: "Missing required fields" });
     }
 
+    console.log("Incoming req.body:", req.body);
+
+
     const chatSession = new ChatSession({
       clerk_id,
       project_id,
-      all_summarised_data: all_summarised_data || "",
+      all_summarised_data,
       message_Data
     });
 
@@ -45,3 +48,36 @@ export const getChatByClerkAndType = async (req, res) => {
     res.status(500).json({ message: "Server error" });
   }
 };
+
+export const updateTypeSummarisedData = async (req, res) => {
+  try {
+    const { clerk_id, project_id, chat_type } = req.params;
+    const { content } = req.body;
+
+    if (!content) {
+      return res.status(400).json({ message: "Missing content in request body" });
+    }
+
+    const chatSession = await ChatSession.findOne({
+      clerk_id,
+      project_id,
+      "message_Data.chat_type": chat_type
+    });
+
+    if (!chatSession) {
+      return res.status(404).json({ message: "Chat session not found" });
+    }
+
+    // Append new content to existing type_summarised_data
+    const currentSummary = chatSession.message_Data.type_summarised_data || "";
+    chatSession.message_Data.type_summarised_data = currentSummary + content;
+
+    const updatedSession = await chatSession.save();
+
+    return res.status(200).json(updatedSession);
+  } catch (error) {
+    console.error("Error appending to type_summarised_data:", error);
+    res.status(500).json({ message: "Server error" });
+  }
+};
+
