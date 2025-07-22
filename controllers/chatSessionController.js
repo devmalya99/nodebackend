@@ -2,24 +2,42 @@ import ChatSession from "../models/ChatSessionModel.js";
 
 export const saveChatSession = async (req, res) => {
   try {
-    const { clerk_id,project_id, chat_type, all_summarised_data, message_Data } = req.body;
+    const { clerk_id,project_id, all_summarised_data, message_Data } = req.body;
+ 
+    const {chat_type,messages}=message_Data
 
-    if (!clerk_id || !project_id || !message_Data.chat_type ) {
+    if (!clerk_id || !project_id || !chat_type || !Array.isArray(messages))  {
       return res.status(400).json({ message: "Missing required fields" });
     }
 
     console.log("Incoming req.body:", req.body);
 
+    // Find if a session already exists
+    let chatSession = await ChatSession.findOne({ clerk_id, project_id, 
+      "message_Data.chat_type": chat_type});
 
-    const chatSession = new ChatSession({
+    if(chatSession){
+      chatSession.message_Data.messages.push(...messages)
+       chatSession.all_summarised_data = all_summarised_data || chatSession.all_summarised_data; // optional
+
+       const updatedSession = await chatSession.save();
+        return res.status(200).json(updatedSession);
+
+    }else{
+
+      const newChatSession = new ChatSession({
       clerk_id,
       project_id,
       all_summarised_data,
       message_Data
     });
 
-    const savedSession = await chatSession.save();
+    const savedSession = await newChatSession.save();
     return res.status(201).json(savedSession);
+
+    }
+
+    
   } catch (error) {
     console.error("Error saving chat:", error);
     res.status(500).json({ message: "Server error" });
@@ -52,6 +70,11 @@ export const getChatByClerkAndType = async (req, res) => {
 export const updateTypeSummarisedData = async (req, res) => {
   try {
     const { clerk_id, project_id, chat_type } = req.params;
+
+    if(!clerk_id || !project_id || !chat_type) {
+      return res.status(400).json({ message: "Missing required fields" });
+    }
+
     const { content } = req.body;
 
     if (!content) {
@@ -69,8 +92,9 @@ export const updateTypeSummarisedData = async (req, res) => {
     }
 
     // Append new content to existing type_summarised_data
-    const currentSummary = chatSession.message_Data.type_summarised_data || "";
-    chatSession.message_Data.type_summarised_data = currentSummary + content;
+    // Replace the old summary with new content
+chatSession.message_Data.type_summarised_data = content;
+
 
     const updatedSession = await chatSession.save();
 
