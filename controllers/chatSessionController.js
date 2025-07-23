@@ -2,47 +2,67 @@ import ChatSession from "../models/ChatSessionModel.js";
 
 export const saveChatSession = async (req, res) => {
   try {
-    const { clerk_id,project_id, all_summarised_data, message_Data } = req.body;
- 
-    const {chat_type,messages}=message_Data
+    const { clerk_id, project_id, chat_type } = req.params;
 
-    if (!clerk_id || !project_id || !chat_type || !Array.isArray(messages))  {
+    // Validate required fields
+    if (!clerk_id || !project_id || !chat_type) {
       return res.status(400).json({ message: "Missing required fields" });
     }
 
-    console.log("Incoming req.body:", req.body);
+    const { content } = req.body; // Expected to be an array of message objects
 
-    // Find if a session already exists
-    let chatSession = await ChatSession.findOne({ clerk_id, project_id, 
-      "message_Data.chat_type": chat_type});
-
-    if(chatSession){
-      chatSession.message_Data.messages.push(...messages)
-       chatSession.all_summarised_data = all_summarised_data || chatSession.all_summarised_data; // optional
-
-       const updatedSession = await chatSession.save();
-        return res.status(200).json(updatedSession);
-
-    }else{
-
-      const newChatSession = new ChatSession({
-      clerk_id,
-      project_id,
-      all_summarised_data,
-      message_Data
-    });
-
-    const savedSession = await newChatSession.save();
-    return res.status(201).json(savedSession);
-
+    // Validate content
+    if (!Array.isArray(content) || content.length === 0) {
+      return res.status(400).json({ message: "Missing or invalid content in request body" });
     }
 
-    
+    console.log("Incoming messages to append:", content.map(m => m.id));
+
+    // Find existing chat session
+    let chatSession = await ChatSession.findOne({ 
+      clerk_id, 
+      project_id, 
+      "message_Data.chat_type": chat_type 
+    });
+
+    if (chatSession) {
+      const existingMessages = chatSession.message_Data.messages || [];
+
+      // Normalize IDs to string for consistent comparison
+      const existingIds = new Set(existingMessages.map(m => String(m.id)));
+      const newMessages = content.filter(m => !existingIds.has(String(m.id)));
+
+      if (newMessages.length > 0) {
+        chatSession.message_Data.messages.push(...newMessages);
+        const updatedSession = await chatSession.save();
+        return res.status(200).json(updatedSession);
+      } else {
+        return res.status(200).json(chatSession); // No new messages
+      }
+
+    } else {
+      // Create new session
+      const newChatSession = new ChatSession({
+        clerk_id,
+        project_id,
+        all_summarised_data: "",
+        message_Data: {
+          chat_type,
+          messages: content,
+          type_summarised_data: ""
+        }
+      });
+
+      const savedSession = await newChatSession.save();
+      return res.status(201).json(savedSession);
+    }
+
   } catch (error) {
-    console.error("Error saving chat:", error);
-    res.status(500).json({ message: "Server error" });
+    console.error("Error saving chat session:", error);
+    return res.status(500).json({ message: "Internal server error" });
   }
 };
+
 
 
 
@@ -67,6 +87,7 @@ export const getChatByClerkAndType = async (req, res) => {
   }
 };
 
+
 export const updateTypeSummarisedData = async (req, res) => {
   try {
     const { clerk_id, project_id, chat_type } = req.params;
@@ -81,6 +102,8 @@ export const updateTypeSummarisedData = async (req, res) => {
       return res.status(400).json({ message: "Missing content in request body" });
     }
 
+    console.log("type summarised data recieved from ai backend ", content);
+
     const chatSession = await ChatSession.findOne({
       clerk_id,
       project_id,
@@ -93,12 +116,11 @@ export const updateTypeSummarisedData = async (req, res) => {
 
     // Append new content to existing type_summarised_data
     // Replace the old summary with new content
-chatSession.message_Data.type_summarised_data = content;
-
+    chatSession.message_Data.type_summarised_data = content;
 
     const updatedSession = await chatSession.save();
-
     return res.status(200).json(updatedSession);
+
   } catch (error) {
     console.error("Error appending to type_summarised_data:", error);
     res.status(500).json({ message: "Server error" });

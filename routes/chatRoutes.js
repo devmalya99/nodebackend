@@ -5,7 +5,7 @@ import {saveChatSession,getChatByClerkAndType, updateTypeSummarisedData } from'.
 const router = express.Router();
 
 // Get chat by clerk_id and chat_type
-router.post("/chat-session/save", saveChatSession);
+router.post("/chat-session/save/:clerk_id/:project_id/:chat_type", saveChatSession);
 router.get("/:clerk_id/:project_id/:chat_type", getChatByClerkAndType);
 router.put("/save-type-summary/:clerk_id/:project_id/:chat_type", updateTypeSummarisedData);
 

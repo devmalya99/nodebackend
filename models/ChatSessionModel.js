@@ -2,7 +2,7 @@ import mongoose from "mongoose";
 
 // Define the sub-schema for individual messages.
 const MessageSchema = new mongoose.Schema({
-  id: { type: Number, required: true },
+  id: { type: String, required: true },
   content: { type: String, required: true },
   isUser: { type: Boolean, required: true },
   type: { type: String, default: "message" },
