@@ -115,8 +115,11 @@ export const updateTypeSummarisedData = async (req, res) => {
     }
 
     // Append new content to existing type_summarised_data
-    // Replace the old summary with new content
-    chatSession.message_Data.type_summarised_data = content;
+    
+   
+     // Initialize if undefined and append new content
+    chatSession.message_Data.type_summarised_data = 
+      (chatSession.message_Data.type_summarised_data || '') + '\n' + content;
 
     const updatedSession = await chatSession.save();
     return res.status(200).json(updatedSession);
