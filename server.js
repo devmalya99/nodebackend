@@ -16,14 +16,24 @@ const app = express();
 // Middleware
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
-app.use(cors());
 
+
+// Enhance CORS configuration
+app.use(cors({
+  origin: '*',
+  methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
+  allowedHeaders: ['Content-Type', 'Authorization']
+}));
+
+// // Handle preflight requests
+// app.options('*', cors());
+
+
+// Add this right after your CORS middleware
 app.use((req, res, next) => {
-  console.log("🔍 Incoming content-type:", req.headers["content-type"]);
-  console.log("📦 Raw body:", req.body);
+  console.log(`📍 ${new Date().toISOString()} ${req.method} ${req.originalUrl}`);
   next();
 });
-
 
 //user route
 app.use('/api/v1/user', userRoute);

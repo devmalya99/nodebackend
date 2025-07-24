@@ -10,13 +10,15 @@ export const saveChatSession = async (req, res) => {
     }
 
     const { content } = req.body; // Expected to be an array of message objects
+    
+    if(!content) return res.status(400).json({ message: "Missing content in request body" });
+
+    console.log("✅Content received:", content);
 
     // Validate content
     if (!Array.isArray(content) || content.length === 0) {
       return res.status(400).json({ message: "Missing or invalid content in request body" });
     }
-
-    console.log("Incoming messages to append:", content.map(m => m.id));
 
     // Find existing chat session
     let chatSession = await ChatSession.findOne({ 
