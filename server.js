@@ -35,7 +35,7 @@ app.use('/api/v1/projects', projectRoute);
  app.use('/api/v1/chats', chatRoute);
 
 // // Health check route
-app.get('/health', (req, res) => {
+app.get('/', (req, res) => {
     res.status(200).json({
         success: true,
         message: 'Server is running',
@@ -50,7 +50,7 @@ const PORT = process.env.PORT || 5000;
 connectDB().then(() => {
     app.listen(PORT, () => {
         console.log(`🚀 Server is running on port ${PORT}`);
-        console.log(`🔍 Health check: http://localhost:${PORT}/health`);
+        //console.log(`🔍 Health check: http://localhost:${PORT}/health`);
     });
 }).catch(err => {
     console.error('❌ Server initialization failed:', err);
