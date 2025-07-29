@@ -13,6 +13,10 @@ const userSchema = new mongoose.Schema(
       required: true,
       trim: true,
     },
+    coachId:{
+      type: String,
+      trim: true,
+    },
     email: {
       type: String,
       required: true,
@@ -21,7 +25,7 @@ const userSchema = new mongoose.Schema(
     },
     role: {
       type: String,
-      enum: ['client', 'coach', 'admin'],
+      enum: ['client', 'admin'],
       default: 'client',
     },
   },

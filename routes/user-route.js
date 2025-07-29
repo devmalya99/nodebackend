@@ -1,11 +1,13 @@
 // routes/user.ts
 import express from 'express';
-import { getUserData,registerClient } from'../controllers/user-controller.js'
+import { assignCoachToClient, getUserData,registerClient } from'../controllers/user-controller.js'
 
 const router = express.Router();
 
-router.post('/find-user', getUserData);
+router.get('/find-user/:clerkId', getUserData);
 
 router.post('/register', registerClient);
+
+router.post('/assign-coach', assignCoachToClient);
 
 export default router;

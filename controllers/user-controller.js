@@ -3,7 +3,7 @@ import User from '../models/user-model.js';
 import {Project} from "../models/project-model.js"; // adjust path as needed
 
 export const getUserData = async (req, res) => {
-  const {clerkId} = req.body;
+  const {clerkId} = req.params;
 
   if (!clerkId) return res.status(400).json({ error: 'Missing clerkId' });
 
@@ -56,5 +56,39 @@ export const registerClient = async (req, res) => {
     res.status(500).json({ message: 'Server error. Could not save user.' });
   }
 };
+
+//controller to assign coach to client
+export const assignCoachToClient = async (req, res) => {
+  try {
+    const { clientClerkId, coachClerkId } = req.body;
+
+    if (!clientClerkId || !coachClerkId) {
+      return res.status(400).json({ message: 'Missing required fields' });
+    }
+
+    // Step 1: Check if client exists
+    const client = await User.findOne({ clerkId: clientClerkId });
+
+    if (!client) {
+      return res.status(404).json({ error: 'Client not found' });
+    }
+
+    const updatedClient =await User.findOneAndUpdate(
+      {clerkId:clientClerkId},
+      {coachId:coachClerkId},
+      {new:true}
+    );
+
+    return res.status(200).json({
+      message: 'Coach assigned successfully',
+      client:updatedClient,
+    });
+  }
+  catch (error) {
+    console.error('Error assigning coach to client:', error);
+    res.status(500).json({ message: 'Server error. Could not assign coach.' });
+  }
+
+}
 
 
