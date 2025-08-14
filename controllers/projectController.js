@@ -4,6 +4,7 @@ import { Project } from "../models/project-model.js"; // adjust path if needed
 
 // POST /projects
 export const createProject = async (req, res) => {
+   console.log(req)
   try {
     const { project_name, clerk_id } = req.body;
 
@@ -33,6 +34,7 @@ export const createProject = async (req, res) => {
 
 // GET /projects/:clerkId
 export const getProjectsByClerkId = async (req, res) => {
+   console.log(req)
   try {
     const { clerkId } = req.params;
 
@@ -51,6 +53,7 @@ export const getProjectsByClerkId = async (req, res) => {
 
 // PATCH /projects/:projectId/progress
 export const updateProjectProgress = async (req, res) => {
+   console.log(req)
   try {
     const { projectId } = req.params;
     const progressFieldUpdate  = req.body;

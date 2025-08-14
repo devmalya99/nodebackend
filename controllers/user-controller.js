@@ -1,42 +1,48 @@
 // controllers/userController.ts
-import User from '../models/user-model.js';
-import {Project} from "../models/project-model.js"; // adjust path as needed
+import User from "../models/user-model.js";
+
 
 export const getUserData = async (req, res) => {
-  const {clerkId} = req.params;
+   console.log(req)
+  const { clerkId } = req.params;
 
-  if (!clerkId) return res.status(400).json({ error: 'Missing clerkId' });
+  if (!clerkId) return res.status(400).json({ error: "Missing clerkId" });
 
   const user = await User.findOne({ clerkId });
 
-  if (!user) return res.status(404).json({ error: 'User not found' });
+  if (!user) return res.status(404).json({ error: "User not found" });
 
   return res.status(200).json(user);
 };
 
 export const registerClient = async (req, res) => {
-  console.log("registering client");
+  console.log(req)
   try {
     const { name, email, clerkId, role } = req.body;
 
     if (!clerkId || !name || !email || !role) {
-      return res.status(400).json({ success: false, message: 'Missing required fields' });
+      return res.status(400).json({ message: "Missing required fields" });
     }
 
     const existing = await User.findOne({ clerkId }).lean();
     if (existing) {
-      return res.status(409).json({ 
-        success: false,
-        message: 'User already exists',
-        user: existing
+      return res.status(409).json({
+        message: "User already exists",
+        data: existing,
       });
     }
 
-    const newUser = await User.create({ clerkId, name, email, role });
+    const newUser = new User({
+      clerkId: clerkId,
+      name,
+      email,
+      role: role,
+    });
 
-    return res.status(201).json({
-      success: true,
-      message: 'Client registered successfully',
+    await newUser.save();
+
+    res.status(201).json({
+      message: "Client user registered successfully",
       user: {
         id: newUser._id,
         name: newUser.name,
@@ -44,46 +50,42 @@ export const registerClient = async (req, res) => {
         role: newUser.role
       }
     });
-
   } catch (error) {
-    console.error('Error saving client user:', error);
-    res.status(500).json({ success: false, message: 'Server error. Could not save user.' });
+    console.error("Error saving client user:", error);
+    res.status(500).json({ message: "Server error. Could not save user." });
   }
 };
 
 
 //controller to assign coach to client
 export const assignCoachToClient = async (req, res) => {
+   console.log(req)
   try {
     const { clientClerkId, coachClerkId } = req.body;
 
     if (!clientClerkId || !coachClerkId) {
-      return res.status(400).json({ message: 'Missing required fields' });
+      return res.status(400).json({ message: "Missing required fields" });
     }
 
     // Step 1: Check if client exists
     const client = await User.findOne({ clerkId: clientClerkId });
 
     if (!client) {
-      return res.status(404).json({ error: 'Client not found' });
+      return res.status(404).json({ error: "Client not found" });
     }
 
-    const updatedClient =await User.findOneAndUpdate(
-      {clerkId:clientClerkId},
-      {coachId:coachClerkId},
-      {new:true}
+    const updatedClient = await User.findOneAndUpdate(
+      { clerkId: clientClerkId },
+      { coachId: coachClerkId },
+      { new: true }
     );
 
     return res.status(200).json({
-      message: 'Coach assigned successfully',
-      client:updatedClient,
+      message: "Coach assigned successfully",
+      client: updatedClient,
     });
+  } catch (error) {
+    console.error("Error assigning coach to client:", error);
+    res.status(500).json({ message: "Server error. Could not assign coach." });
   }
-  catch (error) {
-    console.error('Error assigning coach to client:', error);
-    res.status(500).json({ message: 'Server error. Could not assign coach.' });
-  }
-
-}
-
-
+};
