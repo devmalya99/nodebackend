@@ -16,7 +16,7 @@ export const getUserData = async (req, res) => {
 };
 
 export const registerClient = async (req, res) => {
-  console.log(req)
+  
   try {
     const { name, email, clerkId, role } = req.body;
 
