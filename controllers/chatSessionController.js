@@ -1,6 +1,7 @@
 import ChatSession from "../models/ChatSessionModel.js";
 
 export const saveChatSession = async (req, res) => {
+   console.log(req)
   try {
     const { clerk_id, project_id, chat_type } = req.params;
 
@@ -69,6 +70,7 @@ export const saveChatSession = async (req, res) => {
 
 
 export const getChatByClerkAndType = async (req, res) => {
+   console.log(req)
   try {
     const { clerk_id,project_id, chat_type } = req.params;
 
@@ -91,6 +93,7 @@ export const getChatByClerkAndType = async (req, res) => {
 
 
 export const updateTypeSummarisedData = async (req, res) => {
+   console.log(req)
   try {
     const { clerk_id, project_id, chat_type } = req.params;
 
