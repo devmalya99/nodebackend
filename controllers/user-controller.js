@@ -15,47 +15,42 @@ export const getUserData = async (req, res) => {
 };
 
 export const registerClient = async (req, res) => {
+  console.log("registering client");
   try {
-    const { name, email ,clerkId,role } = req.body;
+    const { name, email, clerkId, role } = req.body;
 
     if (!clerkId || !name || !email || !role) {
-      return res.status(400).json({ message: 'Missing required fields' });
+      return res.status(400).json({ success: false, message: 'Missing required fields' });
     }
 
-    // Check if user already exists
-    const existing = await User.findOne({ clerkId });
-
+    const existing = await User.findOne({ clerkId }).lean();
     if (existing) {
       return res.status(409).json({ 
+        success: false,
         message: 'User already exists',
-        data:existing
-       });
+        user: existing
+      });
     }
 
-    const newUser = new User({
-      clerkId:clerkId,
-      name,
-      email,
-      role: role, 
-    });
+    const newUser = await User.create({ clerkId, name, email, role });
 
-    await newUser.save();
-
-    res.status(201).json({
-      message: 'Client user registered successfully',
+    return res.status(201).json({
+      success: true,
+      message: 'Client registered successfully',
       user: {
         id: newUser._id,
         name: newUser.name,
         email: newUser.email,
-        role: newUser.role,
-      },
+        role: newUser.role
+      }
     });
-    
+
   } catch (error) {
     console.error('Error saving client user:', error);
-    res.status(500).json({ message: 'Server error. Could not save user.' });
+    res.status(500).json({ success: false, message: 'Server error. Could not save user.' });
   }
 };
+
 
 //controller to assign coach to client
 export const assignCoachToClient = async (req, res) => {

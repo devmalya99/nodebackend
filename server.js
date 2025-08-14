@@ -43,6 +43,8 @@ app.use('/api/v1/projects', projectRoute);
 
 // // Health check route
 app.get('/', (req, res) => {
+    console.log('Health check', new Date().toISOString());
+    console.log("database check", mongoose.connection.readyState);
     res.status(200).json({
         success: true,
         message: 'Server is running',
