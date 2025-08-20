@@ -89,3 +89,18 @@ export const assignCoachToClient = async (req, res) => {
     res.status(500).json({ message: "Server error. Could not assign coach." });
   }
 };
+
+
+
+export const getUserDataByEmail = async (req, res) => {
+   
+  const { email } = req.params;
+
+  if (!email) return res.status(400).json({ error: "Missing email" });
+
+  const data = await User.findOne({ email });
+
+  if (!data) return res.status(404).json({ error: "User not found" });
+
+  return res.status(200).json(data);
+};
