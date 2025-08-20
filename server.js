@@ -49,7 +49,8 @@ app.get('/', (req, res) => {
         success: true,
         message: 'Server is running',
         timestamp: new Date().toISOString(),
-        database: mongoose.connection.readyState === 1 ? 'connected' : 'disconnected'
+        database: mongoose.connection.readyState === 1 ? 'connected' : 'disconnected',
+        version: 0.25
     });
 });
 
